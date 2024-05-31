@@ -15,11 +15,11 @@ apiEndpoints:
     paths: '/api/workshop/*'
 serviceEndpoints:
   pitstop-customer-service:
-    url: ${CUSTOMER_URL:-'http://pitstop-customer-service:3001'}
+    url: ${CUSTOMER_URL:-'http://customer-service:3001'}
   pitstop-vehicle-service:
-    url: ${VEHICLE_URL:-'http://pitstop-vehicle-service:3002'}
+    url: ${VEHICLE_URL:-'http://vehicle-service:3002'}
   pitstop-workshop-service:
-    url: ${WORKSHOP_URL:-'http://pitstop-workshop-service:3003'}
+    url: ${WORKSHOP_URL:-'http://workshop-service:3003'}
     
  
 policies:

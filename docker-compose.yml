@@ -1,0 +1,120 @@
+version: '3.9'
+
+services:
+  # Service Customer
+  customer-service:
+    image: brahim02/customer-service:1.0.8
+    env_file:
+      - ./pitstop-customer/.env
+    depends_on:
+      - customer-database
+      - rabbitmq
+    networks:
+      - app-network
+    ports:
+      - "3001:3001"
+
+  customer-database:
+    image: mysql:latest
+    env_file:
+      - ./pitstop-customer/.env
+    volumes:
+      - customer-db-data:/var/lib/mysql
+      - ./pitstop-customer/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    ports:
+      - "3306:3306"
+
+  # Service Vehicle
+  vehicle-service:
+    image: brahim02/vehicle-service:1.0.0
+    env_file:
+      - ./pitstop-vehicle/.env
+    depends_on:
+      - vehicle-database
+      - rabbitmq
+    networks:
+      - app-network
+    ports:
+      - "3002:3002"
+
+  vehicle-database:
+    image: mysql:latest
+    env_file:
+      - ./pitstop-vehicle/.env
+    volumes:
+      - vehicle-db-data:/var/lib/mysql
+      - ./pitstop-vehicle/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    ports:
+      - "3307:3306"
+
+  # Service Workshop
+  workshop-service:
+    image: brahim02/workshop-service:1.0.0
+    env_file:
+      - ./pitstop-workshop-planning/.env
+    depends_on:
+      - workshop-database
+      - rabbitmq
+    networks:
+      - app-network
+    ports:
+      - "3003:3003"
+
+  workshop-database:
+    image: mysql:latest
+    env_file:
+      - ./pitstop-workshop-planning/.env
+    volumes:
+      - workshop-db-data:/var/lib/mysql
+      - ./pitstop-workshop-planning/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app-network
+    ports:
+      - "3308:3306"
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.13.1-alpine
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - app-network
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+
+  # API Gateway
+  api-gateway:
+    image: brahim02/getway-service:1.0.0
+    depends_on:
+      - customer-service
+      - vehicle-service
+      - workshop-service
+    networks:
+      - app-network
+    ports:
+      - "8080:8080"
+
+  # Web App
+  webapp:
+    image: brahim02/webapp-service:1.0.0
+    depends_on:
+      - api-gateway
+    ports:
+      - "8081:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  customer-db-data:
+  vehicle-db-data:
+  workshop-db-data:
+  rabbitmq-data:

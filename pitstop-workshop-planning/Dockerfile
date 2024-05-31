@@ -23,11 +23,11 @@ FROM node:20.13-alpine
 ENV NODE_ENV=production
 
 # Créer un utilisateur et un groupe non-root
-RUN addgroup -S vehgroup && adduser -S vehuser -G vehgroup
+RUN addgroup -S workgroup && adduser -S workuser -G workgroup
 
 # Créer un répertoire de travail et donner les permissions à l'utilisateur non-root
 WORKDIR /usr/src/app
-RUN chown -R vehuser:vehgroup /usr/src/app
+RUN chown -R workuser:workgroup /usr/src/app
 
 # Copier uniquement les fichiers nécessaires de l'étape de build
 COPY --from=build /usr/src/app /usr/src/app
@@ -36,10 +36,10 @@ COPY --from=build /usr/src/app /usr/src/app
 RUN npm ci --only=production
 
 # Changer d'utilisateur
-USER vehuser
+USER workuser
 
 # Exposer le port
-EXPOSE 3002
+EXPOSE 3003
 
 # Commande pour démarrer l'application
 CMD ["npm", "start"]
